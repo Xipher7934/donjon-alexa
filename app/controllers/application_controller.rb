@@ -1,4 +1,10 @@
 class ApplicationController < ActionController::API
+  before_action :check_code
+
+  class NotActivated < StandardError
+  end
+
+  rescue_from NotActivated, :with => :not_activated
 
   def netflix
     show_code = "/search?q=#{params[:show]}" if params[:show]
@@ -30,11 +36,11 @@ class ApplicationController < ActionController::API
   def bootup
     require 'win32ole'
     wsh = WIN32OLE.new('Wscript.Shell')
-    wsh.SendKeys("^{ESC}")
+    wsh.SendKeys('^{ESC}')
     sleep(0.5)
     wsh.SendKeys(params[:program])
     sleep(0.5)
-    wsh.SendKeys("{ENTER}")
+    wsh.SendKeys('{ENTER}')
     render json: { response: true }, status: :ok
   end
 
@@ -48,7 +54,7 @@ class ApplicationController < ActionController::API
       end
     else
       wsh = WIN32OLE.new('Wscript.Shell')
-      wsh.SendKeys("%{F4}")
+      wsh.SendKeys('%{F4}')
       render json: { response: true }, status: :ok
     end
   end
@@ -59,6 +65,17 @@ class ApplicationController < ActionController::API
 
   def restart
     system('restart')
+  end
+
+  private
+
+  def not_activated
+    render json: { response: 'unauthorized' }, status: :unauthorized
+  end
+
+  def check_code
+    puts response.headers
+    raise NotActivated unless params['auth_code'] == 'redredred'
   end
 
 end
