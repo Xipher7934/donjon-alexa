@@ -1,0 +1,1 @@
+rails server puma -b "ssl://0.0.0.0:4000?key=C:/localeh.key&cert=C:/localeh.crt"
