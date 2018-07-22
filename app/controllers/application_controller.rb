@@ -1,16 +1,10 @@
 class ApplicationController < ActionController::API
-  before_action :check_code
+  #before_action :check_code
 
   class NotActivated < StandardError
   end
 
   rescue_from NotActivated, :with => :not_activated
-
-  def netflix
-    show_code = "/search?q=#{params[:show]}" if params[:show]
-    system("start chrome netflix.com#{show_code}")
-    render json: true, status: :ok
-  end
 
   def netflixcontrol
     require 'win32ole'
@@ -30,18 +24,58 @@ class ApplicationController < ActionController::API
               end
     wsh = WIN32OLE.new('Wscript.Shell')
     wsh.SendKeys(control)
-    render json: { response: true }, status: :ok
+    render json: {
+        response: {
+            outputSpeech: {
+                type: 'PlainText',
+                text: 'Okay'
+            }
+        }
+    }, status: :ok
   end
 
   def bootup
     require 'win32ole'
-    wsh = WIN32OLE.new('Wscript.Shell')
-    wsh.SendKeys('^{ESC}')
-    sleep(0.5)
-    wsh.SendKeys(params[:program])
-    sleep(0.5)
-    wsh.SendKeys('{ENTER}')
-    render json: { response: true }, status: :ok
+    status = false
+    intent = params[:request][:intent]
+
+    if intent[:name] == 'bootup'
+      status = true
+      wsh = WIN32OLE.new('Wscript.Shell')
+      wsh.SendKeys('^{ESC}')
+      sleep(0.5)
+      wsh.SendKeys(intent[:slots][:program][:value])
+      sleep(0.5)
+      wsh.SendKeys('{ENTER}')
+
+    elsif intent[:name] == 'netflix'
+      status = true
+      show_code = "/search?q=#{params[:show]}" if params[:show]
+      system("start chrome netflix.com#{show_code}")
+
+    elsif intent[:name] == 'shutdown'
+      status = true
+      system('shutdown')
+
+    elsif intent[:name] == 'restart'
+      status = true
+      system('restart')
+
+    elsif intent[:name] == 'closeprogram'
+      status = true
+      wsh = WIN32OLE.new('Wscript.Shell')
+      wsh.SendKeys('%{F4}')
+    end
+
+    render json: {
+        response: {
+            outputSpeech: {
+                type: 'PlainText',
+                text: (status ? 'Okay' : 'I didn\'t understand that.')
+            }
+        },
+        shouldEndSession: true
+    }, status: :ok
   end
 
   def closeprogram
