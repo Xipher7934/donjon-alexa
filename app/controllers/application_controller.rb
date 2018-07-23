@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::API
-  #before_action :check_code
+  before_action :check_code
 
   class NotActivated < StandardError
   end
@@ -25,16 +25,16 @@ class ApplicationController < ActionController::API
     wsh = WIN32OLE.new('Wscript.Shell')
     wsh.SendKeys(control)
     render json: {
-        response: {
-            outputSpeech: {
-                type: 'PlainText',
-                text: 'Okay'
-            }
+      response: {
+        outputSpeech: {
+          type: 'PlainText',
+              text: 'Okay'
         }
+      }
     }, status: :ok
   end
 
-  def bootup
+  def execute
     require 'win32ole'
     status = false
     intent = params[:request][:intent]
@@ -68,12 +68,12 @@ class ApplicationController < ActionController::API
     end
 
     render json: {
-        response: {
-            outputSpeech: {
-                type: 'PlainText',
-                text: (status ? 'Okay' : 'I didn\'t understand that.')
-            }
-        },
+      response: {
+        outputSpeech: {
+          type: 'PlainText',
+              text: (status ? 'Okay' : 'I didn\'t understand that.')
+        }
+      },
         shouldEndSession: true
     }, status: :ok
   end
@@ -85,8 +85,8 @@ class ApplicationController < ActionController::API
   end
 
   def check_code
-    puts response.headers
-    raise NotActivated unless params['auth_code'] == 'redredred'
+    puts params[:context][:System][:application][:applicationId]
+    raise NotActivated unless params[:context][:System][:application][:applicationId] == "amzn1.ask.skill.5016ae81-1c6a-4b4b-8b09-e531dced50c5"
   end
 
 end
