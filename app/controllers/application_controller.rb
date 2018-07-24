@@ -77,6 +77,16 @@ class ApplicationController < ActionController::API
         }
       }
     }, status: :ok
+
+  rescue StandardError
+    render json: {
+      response: {
+        outputSpeech: {
+          type: 'PlainText',
+            text: 'Sorry, something didn\'t work in that request. Try rephrasing your question.'
+        }
+      }
+    }, status: :ok
   end
 
   private
