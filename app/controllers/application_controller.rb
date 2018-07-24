@@ -1,80 +1,44 @@
 class ApplicationController < ActionController::API
-  before_action :check_code
+  #before_action :check_code
 
   class NotActivated < StandardError
   end
 
   rescue_from NotActivated, :with => :not_activated
 
-  def netflixcontrol
-    require 'win32ole'
-    control = case [:control]
-              when 'pause', 'resume'
-                '{SPACE}'
-              when 'full screen'
-                'F'
-              when 'go back'
-                '{LEFT}'
-              when 'go forward'
-                '{RIGHT}'
-              when 'mute'
-                '{M}'
-              else
-                ''
-              end
-    wsh = WIN32OLE.new('Wscript.Shell')
-    wsh.SendKeys(control)
-    render json: {
-      response: {
-        outputSpeech: {
-          type: 'PlainText',
-              text: 'Okay'
-        }
-      }
-    }, status: :ok
-  end
+  def monsterlookup
+    require 'net/https'
+    require 'nokogiri'
 
-  def execute
-    require 'win32ole'
-    status = false
-    intent = params[:request][:intent]
+    #monster_name = params[:request][:intent][:slots][:monster][:value]
+    monster_name = params[:mname]
+    monster_name = monster_name.gsub(/\s+/, '+')
+    uri = 'https://donjon.bin.sh/5e/monsters/rpc.cgi?name='+monster_name
 
-    if intent[:name] == 'bootup'
-      status = true
-      wsh = WIN32OLE.new('Wscript.Shell')
-      wsh.SendKeys('^{ESC}')
-      sleep(0.5)
-      wsh.SendKeys(intent[:slots][:program][:value])
-      sleep(0.5)
-      wsh.SendKeys('{ENTER}')
+    url = URI.parse(uri)
+    req = Net::HTTP::Get.new(url.to_s)
+    res = Net::HTTP.start(url.host, url.port, use_ssl: true) { |http|
+      http.request(req)
+    }
+    retvar = res.body
 
-    elsif intent[:name] == 'netflix'
-      status = true
-      show_code = "/search?q=#{params[:show]}" if params[:show]
-      system("start chrome netflix.com#{show_code}")
+    monster_text = JSON.parse(retvar, symbolize_names: true)
 
-    elsif intent[:name] == 'shutdown'
-      status = true
-      system('shutdown')
+    page = Nokogiri::HTML(monster_text[:card])
 
-    elsif intent[:name] == 'restart'
-      status = true
-      system('restart')
-
-    elsif intent[:name] == 'closeprogram'
-      status = true
-      wsh = WIN32OLE.new('Wscript.Shell')
-      wsh.SendKeys('%{F4}')
-    end
+    mons = {
+        name: page.css('h2').text,
+        descr: page.css('div.description p em').text
+    }
+    return_text = "The #{mons[:name]} is a #{mons[:descr]}"
 
     render json: {
-      response: {
-        outputSpeech: {
-          type: 'PlainText',
-              text: (status ? 'Okay' : 'I didn\'t understand that.')
+        response: {
+            outputSpeech: {
+                type: 'PlainText',
+                text: return_text
+            }
         }
-      },
-        shouldEndSession: true
     }, status: :ok
   end
 
