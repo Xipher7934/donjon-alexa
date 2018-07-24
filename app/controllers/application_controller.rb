@@ -59,7 +59,7 @@ class ApplicationController < ActionController::API
     mons = parse_monster(monster_text[:card])
 
     if params[:request][:intent][:name] == "monster_lookup"
-      return_text = "The #{mons[:name]} is #{mons[:description].with_indefinite_article}. It is CR #{mons[:challenge]}"
+      return_text = "The #{mons[:name]} is #{mons[:description].with_indefinite_article}. It is CR #{mons[:challengerating]}"
     else
       stat = params[:request][:intent][:slots][:stat][:value]
       stat_sym = stat.gsub(' ','').to_sym
