@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::API
-  #before_action :check_code
+  before_action :check_code
 
   class NotActivated < StandardError
   end
@@ -97,7 +97,7 @@ class ApplicationController < ActionController::API
 
   def check_code
     puts params[:context][:System][:application][:applicationId]
-    raise NotActivated unless params[:context][:System][:application][:applicationId] == "amzn1.ask.skill.5016ae81-1c6a-4b4b-8b09-e531dced50c5"
+    raise NotActivated unless params[:context][:System][:application][:applicationId] == "amzn1.ask.skill.b71474c2-1a45-46c9-bb19-bd63bcbd394a"
   end
 
   def parse_monster(html_text)
