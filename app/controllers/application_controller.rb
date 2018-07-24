@@ -120,7 +120,7 @@ class ApplicationController < ActionController::API
       wisdom: page.css('td').collect(&:text)[4],
       charisma: page.css('td').collect(&:text)[5]
     }
-    mons[:description] = mons[:description].split(',').collect(&:strip).reverse.join(', ')
+    mons[:description] = mons[:description].split(',').collect(&:strip).reverse.join(' ')
     mons[:hitpoints] = mons[:hitpoints].split(/[\(\)]/).collect(&:strip)
     mons[:hitdice] = mons[:hitpoints][1]
     mons[:hitpoints] = mons[:hitpoints][0]
