@@ -86,19 +86,19 @@ class ApplicationController < ActionController::API
     mons = {
       name: page.css('h2').text.strip,
       description: page.css('div.description p em')&.first&.text&.strip || '',
-      armor: page.at('strong:contains("Armor Class")')&.next&.text&.strip || '',
+      armorclass: page.at('strong:contains("Armor Class")')&.next&.text&.strip || '',
       hitpoints: page.at('strong:contains("Hit Points")')&.next&.text&.strip || '',
       speed: page.at('strong:contains("Speed")')&.next&.text&.strip || '',
       languages: page.at('strong:contains("Languages")')&.next&.text&.gsub('-','')&.strip || '',
       skills: page.at('strong:contains("Skills")')&.next&.text&.strip || '',
       senses: page.at('strong:contains("Senses")')&.next&.text&.strip || '',
-      challenge: page.at('strong:contains("Challenge")')&.next&.text&.strip || '',
+      challengerating: page.at('strong:contains("Challenge")')&.next&.text&.strip || '',
       actions: page.at('h1:contains("Actions")').css('p'),
       strength: page.css('td').collect(&:text)[0],
       dexterity: page.css('td').collect(&:text)[1],
       constitution: page.css('td').collect(&:text)[2],
       intelligence: page.css('td').collect(&:text)[3],
-      wisdon: page.css('td').collect(&:text)[4],
+      wisdom: page.css('td').collect(&:text)[4],
       charisma: page.css('td').collect(&:text)[5]
     }
     mons[:description] = mons[:description].split(',').collect(&:strip).reverse.join(', ')
