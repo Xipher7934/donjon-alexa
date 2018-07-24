@@ -10,8 +10,7 @@ class ApplicationController < ActionController::API
     require 'net/https'
     require 'nokogiri'
 
-    #monster_name = params[:request][:intent][:slots][:monster][:value]
-    monster_name = params[:mname]
+    monster_name = params[:request][:intent][:slots][:monster][:value]
     monster_name = monster_name.gsub(/\s+/, '+')
     uri = 'https://donjon.bin.sh/5e/monsters/rpc.cgi?name='+monster_name
 
