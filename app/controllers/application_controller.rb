@@ -24,6 +24,22 @@ class ApplicationController < ActionController::API
 
     monster_text = JSON.parse(retvar, symbolize_names: true)
 
+    puts '** HTML **'
+    puts monster_text[:card]
+    puts '**********'
+
+    if monster_text[:card].include? 'no description available'
+      render json: {
+          response: {
+              outputSpeech: {
+                  type: 'PlainText',
+                  text: 'Sorry, that monster has no details.'
+              }
+          }
+      }, status: :ok
+      return
+    end
+
     page = Nokogiri::HTML(monster_text[:card])
 
     mons = {
